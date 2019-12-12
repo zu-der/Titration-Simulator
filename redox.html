@@ -1,0 +1,637 @@
+<html>
+
+<head>
+	<title>Titration Test</title>
+	<meta charset="UTF-8">
+	<script>
+		var endpoint = 25;
+		var col1 = "cornflowerblue";
+		var col2 = "cornflowerblue";
+	</script>
+	<meta name="viewport" content="user-scalable=0,initial-scale=1.0,shrink-to-fit=no,width=device-width">
+	<style>
+		body {
+			margin: 0px;
+			overflow-x: auto;
+			background-image: linear-gradient(60deg, #f2f2f2, white);
+		}
+
+		#canvas {
+			box-shadow: 0px 0px 10px 1px lightgray;
+			border: 1px solid #f2f2f2;
+			padding: 20px;
+			padding-bottom: 4px;
+			margin: 10px;
+			box-sizing: border-box;
+			overflow-y: auto;
+			overflow-x: hidden;
+			width: 320px;
+			background-image: linear-gradient(45deg, white, rgb(245, 245, 250));
+			margin-top: 20px;
+			cursor: hand;
+			transition: 0.5s;
+			z-index: 5;
+		}
+
+		.left-calc {
+			border-radius: 5px;
+			width: calc(100% - 350px);
+			position: fixed;
+			left: 340;
+			top: 10px;
+			padding: 40px;
+			height: calc(100vh - 20px);
+			overflow-x: hidden;
+			overflow-y: auto;
+			box-sizing: border-box;
+			border: 2px solid #f2f2f2;
+			background-color: white;
+			z-index: 1
+		}
+
+		.drop {
+			border-radius: 50%;
+			border: 0px;
+			outline: none;
+			color: white;
+			position: fixed;
+			top: 5px;
+			height: 60px;
+			width: 60px;
+			font-size: 25px;
+			cursor: hand;
+			background-color: black;
+			right: 5px;
+			font-weight: bold;
+			z-index: 3;
+			transition: 0.5s
+		}
+
+		#canvas:hover {
+			box-shadow: 0px 0px 40px 1px lightgray;
+		}
+
+		.drop:hover {
+			transform: scale(1.1, 1.1);
+		}
+
+		#droplet {
+			position: absolute;
+			width: 4px;
+			height: 12px;
+			background-color: lightblue;
+			opacity: 0.2;
+			top: 378px;
+			left: 112px;
+			z-index: 7;
+			display: none;
+			animation: dropper 0.2s infinite ease-in-out;
+		}
+
+		.btn {
+			border: 0px;
+			border-radius: 5px;
+			transition: 0.5s;
+			outline: none;
+			padding: 10px;
+			border: 2px solid transparent;
+			cursor: hand;
+		}
+
+		.fill {
+			background-color: cornflowerblue;
+			color: white;
+		}
+
+		.start {
+			background-color: orange;
+			color: white;
+		}
+
+		.empty {
+			background-color: tomato;
+			color: white;
+		}
+
+		#loader {
+			position: absolute;
+			top: 28px;
+			left: 18px;
+			width: 300px;
+			height: 18px;
+			display: none;
+			transition: 0.5s;
+		}
+
+		.boxes {
+			border-radius: 50%;
+			width: 18px;
+			height: 100%;
+			background-color: lightgray;
+			display: inline-flex;
+			margin-left: 5px;
+			margin-right: 5px;
+		}
+
+		#b1,
+		#b2,
+		#b3,
+		#b4,
+		#b5 {
+			animation: highlight 0.5s infinite ease-in-out;
+			animation-fill-mode: forwards;
+			animation-direction: alternate-reverse;
+		}
+
+		#b1 {
+			animation-delay: 2s;
+		}
+
+		#b2 {
+			animation-delay: 1.5s;
+		}
+
+		#b3 {
+			animation-delay: 1s;
+		}
+
+		#b4 {
+			animation-delay: 0.5s;
+		}
+
+		#b5 {
+			animation-delay: 0s;
+		}
+
+		#error {
+			position: fixed;
+			display: none;
+			top: 20px;
+			z-index: 40;
+			left: calc(50vw - 250px);
+			border-radius: 5px;
+			background-color: rgba(255, 255, 255, 0.95);
+			padding: 20px;
+			box-shadow: 0px 0px 10px 3px lightgray;
+			width: 500px;
+			animation: bouncer 0.3s infinite ease-in-out;
+			animation-fill-mode: forwards;
+			animation-direction: alternate-reverse;
+			box-sizing: border-box;
+			font-family: segoe ui;
+			font-size: 16px
+		}
+
+		#modal {
+			position: fixed;
+			z-index: 30;
+			top: 0px;
+			left: 0px;
+			display: none;
+			width: 100vw;
+			height: 100vh;
+			background-color: white;
+			transition: 0.5s
+		}
+
+		.close {
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			padding: 5px
+		}
+
+		@media(max-width:700px) {
+			#canvas {
+				align-self: center;
+			}
+
+			body {
+				margin-bottom: 40px
+			}
+
+			.left-calc {
+				position: initial;
+				height: initial;
+				width: calc(100% - 20px);
+				margin: 10px;
+				overflow: hidden;
+			}
+		}
+
+		@keyframes dropper {
+			from {
+				top: 378;
+			}
+
+			to {
+				top: 570;
+			}
+		}
+
+		@keyframes highlight {
+			from {
+				background-color: lightgray;
+			}
+
+			to {
+				background-color: cornflowerblue;
+			}
+		}
+
+		@keyframes bouncer {
+			from {
+				transform: scale(1, 1);
+				background-color: rgba(255, 255, 255, 0.95);
+			}
+
+			to {
+				background-color: rgba(254, 254, 255, 0.9);
+				transform: scale(1.01, 1.01);
+			}
+		}
+
+		@media (max-width:550px) {
+			#error {
+				left: 2.5vw;
+				width: 95vw;
+			}
+		}
+	</style>
+</head>
+
+<body>
+	<button class="drop" onclick="//openModal()">&#9776;</button>
+	<div id="droplet"></div>
+	<div id="loader">
+		<center>
+			<div class="boxes" id="b1"></div>
+			<div class="boxes" id="b2"></div>
+			<div class="boxes" id="b3"></div>
+			<div class="boxes" id="b4"></div>
+			<div class="boxes" id="b5"></div>
+		</center>
+	</div>
+	<canvas id="canvas" height="650"></canvas>
+	<div class="left-calc">
+		<!-- This is where the styling of the Calculation Items will be 
+			Also, the titrate() function has one argument which is the endpoint.
+			To clear containers, you call clearContainers(document.getElementById('canvas'));
+			The coloration variable holds the color change preset which could be Red, pink, yellow etc...
+			openModal() is used to open the Calculations Modal
+		-->
+		<button class="btn fill"
+			onclick="filler(document.getElementById('canvas'), col1, col2)">Fill
+			Containers</button>
+		<br />
+		<br />
+		<button class="btn start" onclick="titrate(endpoint, col1, col2)">Start Titration</button>
+		<br />
+		<br />
+		<button class="btn empty" onclick="clearContainers(document.getElementById('canvas'))">Empty Containers</button>
+		<!-- Ends Here -->
+	</div>
+	<div id="error"></div>
+	<div id="modal">
+		<button class="close" onclick="closeModal()">&times;</button>
+	</div>
+</body>
+<script>
+	var titrating = false;
+	var filled = false;
+	var filling = false;
+	var titrated = false;
+	coloration = "pink";
+	document.body.onload = function () {
+		stroker(document.getElementById("canvas"));
+	}
+	function stroker(x) {
+		setInterval(function () {
+			/* Canvas Contexts and Configurations */
+			var canvas = x.getContext("2d");
+			canvas.lineWidth = 0.5;
+			canvas.strokeStyle = "#2a2b2d";
+			var filler = x.getContext("2d");
+			filler.fillStyle = "lightgray";
+			filler.lineWidth = 0.5;
+			/* Ends Here */
+
+			/* Conical Flask */
+			canvas.beginPath();
+			canvas.moveTo(40, 600);
+			canvas.lineTo(140, 600);
+			canvas.moveTo(40, 600);
+			canvas.lineTo(80, 450);
+			canvas.moveTo(140, 600);
+			canvas.lineTo(100, 450);
+			canvas.moveTo(100, 450);
+			canvas.lineTo(100, 400);
+			canvas.moveTo(80, 450);
+			canvas.lineTo(80, 400);
+			canvas.moveTo(100, 400);
+			canvas.lineTo(80, 400);
+			canvas.stroke();
+			canvas.closePath();
+			/* Ends Here */
+
+			/* Back of Retort Stand */
+
+			filler.beginPath();
+			filler.moveTo(40, 65);
+			filler.lineTo(190, 65);
+			filler.lineTo(190, 75);
+			filler.lineTo(40, 75);
+			filler.fill();
+			filler.closePath();
+			/* Ends Here */
+
+			/* Burette Graphics */
+			canvas.beginPath();
+			canvas.moveTo(85, 320);
+			canvas.lineTo(85, 20);
+			canvas.moveTo(95, 320);
+			canvas.lineTo(95, 20);
+			canvas.moveTo(95, 20);
+			canvas.lineTo(85, 20);
+			canvas.moveTo(85, 320);
+			canvas.lineTo(95, 320);
+			canvas.stroke(); //Renders Stroking Graphics
+			canvas.closePath();
+
+			filler.fillStyle = "gray";
+			filler.beginPath();
+			filler.moveTo(84, 320);
+			filler.lineTo(96, 320);
+			filler.lineTo(93, 350);
+			filler.lineTo(90, 370);
+			filler.lineTo(87, 350);
+			filler.lineTo(93, 350);
+			filler.lineTo(87, 350);
+
+
+			filler.lineTo(90, 370);
+			filler.fill();
+			filler.closePath();
+			/* Ends Here */
+
+
+			/* Retort Stand */
+			filler.fillStyle = "gray";
+			filler.beginPath();
+			filler.moveTo(150, 15);
+			filler.lineTo(165, 15);
+			filler.lineTo(165, 580);
+			filler.lineTo(150, 580);
+			filler.closePath();
+			filler.fill();
+			/* Ends Here */
+
+			/* Retort Stand Base */
+			filler.fillStyle = "brown";
+			filler.beginPath();
+			filler.moveTo(142, 580);
+			filler.lineTo(230, 580);
+			filler.lineTo(230, 602);
+			filler.lineTo(142, 602);
+			filler.closePath();
+			filler.fill();
+			/* Ends Here */
+
+			/* Experiment Table */
+			filler.fillStyle = "black";
+			filler.beginPath();
+			filler.moveTo(0, 601);
+			filler.lineTo(320, 601);
+			filler.lineTo(320, 820);
+			filler.lineTo(0, 820);
+			filler.closePath();
+			filler.fill();
+			/* Ends Here */
+
+			/* Filled Polygon Renderer */
+			filler.fillStyle = "lightgray";
+			filler.beginPath();
+			filler.moveTo(40, 80);
+			filler.lineTo(190, 80);
+			filler.lineTo(190, 90);
+			filler.lineTo(40, 90);
+			filler.closePath();
+			filler.fill();
+			filler.closePath();
+			/* Ends Here */
+		}, 0.05);
+	}
+	var x1 = 40;
+	var x2 = 140;
+	var y = 600;
+	function filler(x, col1, col2) {
+		if (filled == true || filling == true || titrated == true || titrating == true) {
+			err("Oops! Either the containers are filled up or being filled. Empty the containers first!");
+		}
+		else {
+			var canvas = x.getContext("2d");
+			canvas.lineWidth = 2;
+			var cnt = 0;
+			var int1 = setInterval(function () {
+				cnt++;
+				if (cnt <= 15) {
+					canvas.strokeStyle = col1;
+					y = y - 2;
+					x1 = x1 + 0.5;
+					x2 = x2 - 0.5;
+					canvas.beginPath();
+					canvas.moveTo(x1, y);
+					canvas.lineTo(x2, y);
+					canvas.stroke();
+					canvas.stroke();			
+					filled = false;
+					canvas.closePath();
+				}
+				else {
+					filled = true;
+					filling = false;
+					clearInterval(int1);
+				}
+			}, 50);
+			var num = 0;
+			var top = 320;
+			var stroker = x.getContext("2d");
+			stroker.lineWidth = 2;
+			var int2 = setInterval(function () {
+				num++;
+				if (num <= 140) {
+					stroker.strokeStyle = col2;
+					top = top - 2;
+					stroker.beginPath();
+					stroker.moveTo(85, top);
+					stroker.lineTo(95, top);
+					stroker.stroke();
+					filling = true;
+					filled = false;
+					stroker.closePath();
+				}
+				else {
+					filled = true;
+					filling = false;
+					clearInterval(int2);
+				}
+			}, 1);
+		}
+	}
+	function droplets() {
+		document.getElementById("droplet").style.display = "block";
+	}
+	function clearContainers(x) {
+		titrating = false;
+		filled = false;
+		filling = false;
+		titrated = false;
+		var filler = x.getContext("2d");
+		filler.fillStyle = "white";
+		filler.beginPath();
+		filler.moveTo(42, 600);
+		filler.lineTo(138, 600);
+		filler.lineTo(98, 450);
+		filler.lineTo(82, 450);
+		filler.lineTo(42, 600);
+		filler.fill();
+		filler.closePath();
+
+		filler.fillStyle = "white";
+		filler.beginPath();
+		filler.moveTo(86, 320);
+		filler.lineTo(86, 20);
+		filler.lineTo(94, 20);
+		filler.lineTo(94, 320);
+		filler.lineTo(87, 320);
+		filler.fill();
+		filler.closePath();
+
+		x1 = 40;
+		x2 = 140;
+		y = 600;
+	}
+	function colorChange(x) {
+		var canvas = document.getElementById("canvas").getContext("2d");
+		document.getElementById("droplet").style.display = "none";
+		canvas.lineWidth = 2;
+		var init = 600;
+		var l1 = 40;
+		var l2 = 140;
+		diff = (init - y) / 2;
+		var cnt = 0;
+		var int1 = setInterval(function () {
+			cnt++;
+			if (cnt <= diff) {
+				canvas.strokeStyle = x;
+				init = init - 2;
+				l1 = l1 + 0.5;
+				l2 = l2 - 0.5;
+				canvas.beginPath();
+				canvas.moveTo(l1, init);
+				canvas.lineTo(l2, init);
+				canvas.stroke();
+				canvas.closePath();
+			}
+		}, 30);
+	}
+	function titrate(x, col1, col2) {
+		if (parseFloat(x) <= 50) {
+			if (titrating == true || titrated == true || filled == false) {
+				err("Oops! You cannot titrate empty containers or you've got to empty the containers first!");
+			}
+			else {
+				document.getElementById("loader").style.display = "block";
+				document.getElementById("droplet").style.backgroundColor = col2;
+				droplets();
+				var canvas = document.getElementById("canvas").getContext("2d");
+				endval = parseInt(Math.floor(x));
+				canvas.lineWidth = 2;
+				var cnt = 0;
+				var int1 = setInterval(function () {
+					cnt++;
+					canvas.strokeStyle = col1;
+					if (cnt <= endval) {
+						y = y - 2;
+						x1 = x1 + 0.5;
+						x2 = x2 - 0.5;
+						canvas.beginPath();
+						canvas.moveTo(x1, y);
+						canvas.lineTo(x2, y);
+						canvas.stroke();
+						canvas.stroke();
+						titrated = false;
+						titrating = true;
+						canvas.closePath();
+					}
+					else {
+						colorChange(coloration);
+						colorChange(coloration);
+						colorChange(coloration);
+						colorChange(coloration);
+						colorChange(coloration);
+						titrating = false;
+						titrated = true;
+						setTimeout(function () {
+							document.getElementById("loader").style.display = "none";
+						}, 1000);
+						clearInterval(int1);
+						clearInterval(int2);
+					}
+				}, 600);
+
+				var num = 0;
+				var top = 30;
+				var stroker = document.getElementById("canvas").getContext("2d");
+				stroker.lineWidth = 2;
+				var int2 = setInterval(function () {
+					num++;
+					if (num <= 140) {
+						stroker.strokeStyle = "white";
+						top = top + 2;
+						stroker.beginPath();
+						stroker.moveTo(85, top);
+						stroker.lineTo(95, top);
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.stroke();
+						stroker.closePath();
+					}
+					else {
+						clearInterval(int2);
+					}
+				}, 180);
+			}
+		}
+		else {
+			err("Oops! The values provided will lead to an overflow! Please review them");
+		}
+	}
+	var tim;
+	function err(msg) {
+		clearTimeout(tim);
+		document.getElementById("error").innerText = msg;
+		document.getElementById("error").style.display = "block";
+		duration = document.getElementById("error").innerText.length * 80;
+		tim = setTimeout(function () {
+			document.getElementById("error").style.display = "none";
+		}, duration);
+	}
+	function openModal() {
+		document.getElementById("modal").style.display = "block";
+	}
+	function closeModal() {
+		document.getElementById("modal").style.display = "none";
+	}
+</script>
+
+</html>
